@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏮 好傢在年終慶 🏮</title>
+    <style>
+        :root { 
+            --gold: #ffdf00; --red: #e60000; --dark-red: #8b0000; --accent: #ffefba;
+            --lamp-on: #fff; --lamp-off: #ffdf00;
+        }
+        body { 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            background: radial-gradient(circle, #a00000 0%, #330000 100%);
+            display: flex; justify-content: center; padding: 10px; min-height: 100vh; margin: 0;
+            overflow-x: hidden;
+        }
+        .container { 
+            width: 100%; max-width: 450px; background: #fff; padding: 20px; 
+            border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); 
+            text-align: center; border: 6px solid var(--gold); align-self: center;
+            background-image: url('https://www.transparenttextures.com/patterns/paper.png');
+        }
+        h1 { color: var(--red); text-shadow: 1px 1px #ffefba; margin: 0; font-size: 24px; }
+        .promo-tag { 
+            background: var(--red); color: #fff; display: inline-block; 
+            padding: 5px 15px; border-radius: 20px; font-weight: bold; 
+            margin: 10px 0; font-size: 15px; border: 2px solid var(--gold);
+        }
+        .admin-section { background: #fff8e1; padding: 10px; border-radius: 15px; margin-bottom: 10px; border: 2px dashed var(--red); }
+        .admin-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 5px; }
+        input, select { padding: 10px; border-radius: 8px; border: 2px solid #ddd; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--red); }
+        button.admin-btn { background: var(--dark-red); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        
+        .wheel-container { position: relative; width: 300px; height: 300px; margin: 10px auto; }
+        .wheel-outer {
+            width: 100%; height: 100%; border-radius: 50%; background: #b30000;
+            box-shadow: 0 0 20px var(--gold); display: flex; align-items: center; justify-content: center;
+            position: relative; border: 6px solid #8b0000;
+        }
+        /* 跑馬燈效果 */
+        .lights { position: absolute; width: 105%; height: 105%; border-radius: 50%; border: 6px dotted var(--lamp-off); animation: flash 0.6s infinite linear; z-index: 2; pointer-events: none; }
+        @keyframes flash {
+            0% { border-color: var(--lamp-off); filter: drop-shadow(0 0 2px var(--gold)); }
+            50% { border-color: var(--lamp-on); filter: drop-shadow(0 0 8px var(--gold)); }
+        }
+        #wheelCanvas { border-radius: 50%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); z-index: 5; }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 35px solid var(--gold); z-index: 20; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.5)); }
+
+        .draw-btn { width: 100%; padding: 15px; font-size: 22px; font-weight: bold; color: #fff; background: linear-gradient(to bottom, #ff4747, #b30000); border: none; border-radius: 50px; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 0 #660000; }
+        .draw-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #660000; }
+        .draw-btn:disabled { background: #ccc; box-shadow: none; transform: translateY(5px); animation: none; cursor: not-allowed; }
+
+        .result-display { display: none; margin-top: 15px; padding: 15px; border: 4px solid var(--gold); border-radius: 20px; background: var(--dark-red); color: white; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .prize-text { font-size: 24px; font-weight: bold; color: var(--gold); margin: 8px 0; text-shadow: 2px 2px #000; }
+        .verify-btn { background: var(--gold); color: #000; padding: 10px 20px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .stamp { font-size: 36px; color: #1ed760; font-weight: bold; transform: rotate(-15deg); border: 5px solid #1ed760; display: inline-block; padding: 5px 15px; margin: 10px; background: rgba(0,0,0,0.1); }
+        .timer-box { font-family: monospace; color: #1ed760; background: #000; padding: 6px; border-radius: 5px; font-size: 12px; margin-top: 8px; border: 1px solid #333; }
+        .report-title { font-size: 11px; color: #999; cursor: pointer; margin-top: 15px; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏮 好傢在年終慶 🏮</h1>
+    <div class="promo-tag">🧧 消費滿 2000 元獲抽獎一次 🧧</div>
+    
+    <div class="admin-section">
+        <div class="admin-row">
+            <select id="storeSelect">
+                <option value="">請選擇門市</option>
+                <option value="苗栗店">苗栗店</option><option value="竹北店">竹北店</option>
+                <option value="大甲店">大甲店</option><option value="西屯店">西屯店</option>
+                <option value="崇德店">崇德店</option><option value="向上店">向上店</option>
+                <option value="豐原店">豐原店</option><option value="埔里店">埔里店</option>
+                <option value="虎尾店">虎尾店</option><option value="斗六店">斗六店</option>
+                <option value="台東店">台東店</option><option value="澎湖店">澎湖店</option>
+                <option value="金門店">金門店</option>
+            </select>
+        </div>
+        <div class="admin-row">
+            <input type="number" id="amtInput" placeholder="消費金額" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null">
+            <input type="password" id="pwdInput" placeholder="密碼" style="width: 50px;">
+            <button class="admin-btn" onclick="addChance()">增加</button>
+        </div>
+    </div>
+
+    <div style="font-size: 20px; color: var(--red); font-weight: 900; margin: 5px 0;">
+        剩餘機會：<span id="chanceCount">0</span> 次
+    </div>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel-outer">
+            <div class="lights"></div>
+            <canvas id="wheelCanvas" width="280" height="280"></canvas>
+        </div>
+    </div>
+
+    <button id="drawBtn" class="draw-btn" onclick="startSpin()">點我開始抽獎</button>
+    <div id="resultBox" class="result-display"></div>
+
+    <div class="report-title" onclick="toggleReport()">[ 本機核銷備份紀錄 ]</div>
+    <div id="reportContent" style="display:none; text-align: left; background: #eee; padding: 10px; border-radius: 10px; margin-top: 10px;">
+        <pre id="logData" style="font-size: 11px; white-space: pre-wrap; max-height: 150px; overflow-y: auto;"></pre>
+        <button onclick="copyLog()" style="width:100%; padding: 8px; background: #28a745; color: white; border:none; border-radius: 5px;">複製紀錄傳回公司</button>
+    </div>
+</div>
+
+<script>
+    // --- 核心配置 ---
+    const STAFF_PASSWORD = "888"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyYDmtrRvKBVW-JM4v_ivN3IWZIJLg1E9BkjHVlELm5QpZVPYDHqv5TdbYZpJIjiIB7GQ/exec"; 
+
+    const prizes = [
+        { n: "獨立筒床墊", w: 15, c1: "#e60000", c2: "#fff" },
+        { n: "65吋電視", w: 2, c1: "#ffdf00", c2: "#333" },
+        { n: "電動沙發", w: 4, c1: "#e60000", c2: "#fff" },
+        { n: "石墨烯被胎", w: 30, c1: "#ffdf00", c2: "#333" },
+        { n: "熱敷按摩眼罩", w: 30, c1: "#e60000", c2: "#fff" },
+        { n: "5cm記憶床墊", w: 20, c1: "#ffdf00", c2: "#333" },
+        { n: "舒適毛毯", w: 500, c1: "#e60000", c2: "#fff" },
+        { n: "石墨烯產品", w: 30, c1: "#ffdf00", c2: "#333" },
+        { n: "壓縮毛巾", w: 10000, c1: "#e60000", c2: "#fff" }
+    ];
+
+    // 初始化：從本地存儲讀取點數
+    let chances = parseInt(localStorage.getItem('hjz_chances')) || 0;
+    let isSpinning = false, currentRotation = 0, lastAmount = 0, selectedStore = "";
+    const canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d'), centerX = 140, centerY = 140;
+
+    function drawWheel() {
+        const arc = (2 * Math.PI) / prizes.length;
+        prizes.forEach((p, i) => {
+            const angle = i * arc;
+            ctx.fillStyle = p.c1;
+            ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.arc(centerX, centerY, 140, angle, angle + arc); ctx.fill();
+            ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(angle + arc / 2); ctx.textAlign = "right"; ctx.fillStyle = p.c2;
+            ctx.font = "bold 12px Microsoft JhengHei";
+            ctx.fillText(p.n, 125, 6); ctx.restore();
+        });
+    }
+
+    function addChance() {
+        const store = document.getElementById('storeSelect').value;
+        const val = document.getElementById('amtInput').value;
+        if (!store) return alert("請先選取門市名稱！");
+        if (document.getElementById('pwdInput').value !== STAFF_PASSWORD) return alert("店員密碼錯誤！");
+        if (!val || val < 2000) return alert("消費金額不足 2000 元！");
+        
+        selectedStore = store;
+        lastAmount = val;
+        chances += Math.floor(val / 2000);
+        saveChances();
+        document.getElementById('amtInput').value = "";
+        document.getElementById('pwdInput').value = "";
+        updateUI();
+        alert(`🧧 ${store} 確認成功！已存入 ${Math.floor(val / 2000)} 次機會。`);
+    }
+
+    function startSpin() {
+        if (chances <= 0) return alert("目前沒有抽獎次數，請洽店員。");
+        if (isSpinning) return;
+        
+        isSpinning = true; 
+        updateUI();
+        document.getElementById('resultBox').style.display = 'none';
+        
+        // 隨機計算獎項
+        const totalW = prizes.reduce((s, p) => s + p.w, 0);
+        let random = Math.random() * totalW, winIdx = 0;
+        for (let i = 0; i < prizes.length; i++) { if (random < prizes[i].w) { winIdx = i; break; } random -= prizes[i].w; }
+        
+        const prizeName = prizes[winIdx].n;
+        const segmentDeg = 360 / prizes.length;
+        // 確保轉盤停止位置精準對準指針
+        const stopAngle = 360 - (winIdx * segmentDeg) - 90 - (segmentDeg / 2);
+        currentRotation += 1440 + stopAngle - (currentRotation % 360);
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+        
+        setTimeout(() => { 
+            isSpinning = false; 
+            chances--; 
+            saveChances();
+            updateUI(); 
+            showResult(prizeName); 
+        }, 4100);
+    }
+
+    function showResult(prizeName) {
+        const resBox = document.getElementById('resultBox');
+        resBox.style.display = 'block';
+        resBox.innerHTML = `
+            <div style="color: #fff; font-size: 14px;">恭喜您抽中</div>
+            <div class="prize-text">${prizeName}</div>
+            <div id="verifyArea">
+                <input type="password" id="verifyPwd" placeholder="核銷密碼" style="width:70px;">
+                <button class="verify-btn" onclick="confirmVerify('${prizeName}')">確認領獎</button>
+            </div>
+            <div id="liveClock" class="timer-box"></div>
+        `;
+        updateClock();
+    }
+
+    function confirmVerify(prize) {
+        if (document.getElementById('verifyPwd').value !== STAFF_PASSWORD) return alert("密碼錯誤！");
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerText = "同步中...";
+
+        const verifyCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+        const logEntry = { 
+            t: new Date().toLocaleString(), 
+            s: selectedStore || "未選門市", 
+            p: prize, 
+            a: lastAmount, 
+            id: verifyCode 
+        };
+        
+        // 同步到 Google
+        fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(logEntry) })
+        .then(() => {
+            document.getElementById('verifyArea').innerHTML = `<div class="stamp">已兌換</div><p style="font-size:11px; color:var(--gold)">紀錄碼: ${verifyCode}</p>`;
+        })
+        .catch(() => {
+            alert("雲端同步異常，已轉為本地備份。");
+            document.getElementById('verifyArea').innerHTML = `<div class="stamp" style="color:orange; border-color:orange;">備份核銷</div>`;
+        });
+
+        let logs = JSON.parse(localStorage.getItem('hjz_logs') || "[]");
+        logs.push(logEntry);
+        localStorage.setItem('hjz_logs', JSON.stringify(logs));
+    }
+
+    function saveChances() { localStorage.setItem('hjz_chances', chances); }
+    function updateUI() { 
+        document.getElementById('chanceCount').innerText = chances; 
+        document.getElementById('drawBtn').disabled = (chances <= 0 || isSpinning); 
+    }
+    function updateClock() {
+        const clock = document.getElementById('liveClock');
+        if (clock) {
+            clock.innerText = new Date().toLocaleString() + " [即時驗證]";
+            if (!document.querySelector('.stamp')) setTimeout(updateClock, 1000);
+        }
+    }
+    function renderLog() {
+        let logs = JSON.parse(localStorage.getItem('hjz_logs') || "[]");
+        document.getElementById('logData').innerText = logs.map(l => `[${l.t}] ${l.s} | ${l.p}`).reverse().join('\n');
+    }
+    function copyLog() { renderLog(); navigator.clipboard.writeText(document.getElementById('logData').innerText); alert("報表已複製"); }
+    function toggleReport() { const c = document.getElementById('reportContent'); c.style.display = (c.style.display==='none'?'block':'none'); renderLog(); }
+
+    drawWheel();
+    updateUI();
+</script>
+</body>
+</html>
